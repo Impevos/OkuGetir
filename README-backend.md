@@ -64,19 +64,21 @@ oku-getir/
 ### 2. SQL şemasını çalıştır
 
 1. Supabase Dashboard → **SQL Editor** → **New query**
-2. `supabase-schema.sql` dosyasının **tüm içeriğini** yapıştır
-3. **Run** — tablolar, kategoriler ve view oluşur
+2. **`supabase-setup.sql`** dosyasının **tüm içeriğini** yapıştır (şema + 8 kitap örnek verisi tek dosyada)
+3. **Run** — tablolar, kategoriler, view ve örnek veri oluşur
+
+> Ayrı dosyalar: `supabase-schema.sql` (sadece şema), `supabase-seed.sql` (sadece veri)
 
 ### 3. Ortam değişkenlerini ayarla
 
 React (Vite) projesinde `.env` dosyası:
 
 ```env
-VITE_SUPABASE_URL=https://XXXXXXXX.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+VITE_SUPABASE_URL=https://nakbtmsafmbishqwiwqy.supabase.co
+VITE_SUPABASE_ANON_KEY=sb_publishable_...
 ```
 
-Değerleri al: **Project Settings → API → Project URL** ve **anon public key**
+Değerleri al: **Project Settings → API Keys → Project URL** ve **Publishable key**
 
 > `.env` dosyasını GitHub'a **koyma** — `.gitignore`'a ekle.
 
