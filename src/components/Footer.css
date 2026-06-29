@@ -1,0 +1,191 @@
+/* Footer bileşeninin ana kapsayıcısı - sayfanın en altında tam genişlikte durur */
+.footer {
+  /* Arka plan rengi: krem tonu, kitap platformuna uygun sıcak bir görünüm */
+  background-color: #f5f1e8;
+  /* Üst kenara ince yeşil çizgi ekler, footer'ı içerikten ayırır */
+  border-top: 2px solid #2d6a4f;
+  /* İç boşluk: üst-alt 40px, sağ-sol 20px */
+  padding: 40px 20px 20px;
+  /* Yazı rengi: koyu gri, okunabilirlik için */
+  color: #333333;
+  /* Yazı tipi: sistem fontları, modern ve hızlı yüklenir */
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Footer içindeki ana grid yapısı - sütunları yan yana dizer */
+.footer-container {
+  /* Maksimum genişlik: çok geniş ekranlarda içerik dağılmaz */
+  max-width: 1200px;
+  /* Grid ile 4 sütunlu düzen (masaüstü) */
+  display: grid;
+  /* 4 eşit sütun oluşturur */
+  grid-template-columns: repeat(4, 1fr);
+  /* Sütunlar arası 30px boşluk */
+  gap: 30px;
+  /* Grid'i yatayda ortalar */
+  margin: 0 auto 30px;
+}
+
+/* Her bir footer bölümü (Proje, Linkler, Kategoriler, İletişim) */
+.footer-section {
+  /* Flexbox ile dikey hizalama */
+  display: flex;
+  /* Elemanları dikey sırala */
+  flex-direction: column;
+  /* Elemanlar arası 12px boşluk */
+  gap: 12px;
+}
+
+/* Bölüm başlıkları (h3) */
+.footer-title {
+  /* Yeşil renk: marka rengi */
+  color: #2d6a4f;
+  /* Başlık boyutu */
+  font-size: 1.1rem;
+  /* Kalın yazı */
+  font-weight: 700;
+  /* Alt boşluk */
+  margin-bottom: 4px;
+}
+
+/* Proje açıklama metni */
+.footer-description {
+  /* Satır aralığı: okunabilirlik için */
+  line-height: 1.6;
+  /* Biraz daha küçük yazı */
+  font-size: 0.9rem;
+  /* Açık gri ton */
+  color: #555555;
+}
+
+/* Link listesi (ul) - varsayılan madde işaretini kaldırır */
+.footer-links {
+  /* Liste madde işaretlerini kaldır */
+  list-style: none;
+  /* Varsayılan padding'i sıfırla */
+  padding: 0;
+  /* Varsayılan margin'i sıfırla */
+  margin: 0;
+  /* Flex ile dikey sıralama */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Her bir link öğesi (li) */
+.footer-links li {
+  /* Ekstra boşluk yok */
+  margin: 0;
+}
+
+/* Footer'daki tüm linkler (a) */
+.footer-links a {
+  /* Link rengi: koyu gri */
+  color: #444444;
+  /* Alt çizgiyi kaldır */
+  text-decoration: none;
+  /* Yazı boyutu */
+  font-size: 0.9rem;
+  /* Hover geçiş animasyonu */
+  transition: color 0.2s ease;
+}
+
+/* Link üzerine gelindiğinde */
+.footer-links a:hover {
+  /* Yeşil renge dönüşür */
+  color: #2d6a4f;
+}
+
+/* İletişim bilgileri metni (e-posta, konum) */
+.footer-contact {
+  /* Satır aralığı */
+  line-height: 1.8;
+  /* Yazı boyutu */
+  font-size: 0.9rem;
+  /* Gri ton */
+  color: #555555;
+}
+
+/* E-posta linki */
+.footer-contact a {
+  /* Mavi-yeşil ton: tıklanabilir olduğunu gösterir */
+  color: #1b4332;
+  text-decoration: none;
+}
+
+/* E-posta linki hover */
+.footer-contact a:hover {
+  /* Alt çizgi ekler */
+  text-decoration: underline;
+}
+
+/* Sosyal medya ikonları kapsayıcısı */
+.footer-social {
+  /* Flex ile ikonları yan yana dizer */
+  display: flex;
+  /* İkonlar arası 12px boşluk */
+  gap: 12px;
+  /* Üstten biraz boşluk */
+  margin-top: 8px;
+}
+
+/* Her bir sosyal medya linki */
+.footer-social a {
+  /* 36x36 piksel dairesel buton */
+  width: 36px;
+  height: 36px;
+  /* Yuvarlak köşe (tam daire) */
+  border-radius: 50%;
+  /* Yeşil arka plan */
+  background-color: #2d6a4f;
+  /* İkonu ortala */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Beyaz ikon rengi */
+  color: #ffffff;
+  /* Alt çizgi yok */
+  text-decoration: none;
+  /* Hover animasyonu */
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+/* Sosyal medya hover efekti */
+.footer-social a:hover {
+  /* Daha koyu yeşil */
+  background-color: #1b4332;
+  /* Hafif büyüme efekti */
+  transform: scale(1.1);
+}
+
+/* Telif hakkı / alt bilgi satırı */
+.footer-bottom {
+  /* Üst kenara ince çizgi */
+  border-top: 1px solid #d4cfc4;
+  /* İç boşluk */
+  padding-top: 20px;
+  /* Metni ortala */
+  text-align: center;
+  /* Küçük yazı */
+  font-size: 0.85rem;
+  /* Açık gri */
+  color: #777777;
+  /* Maksimum genişlik ve ortalama */
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Mobil ekranlar için responsive düzen (768px ve altı) */
+@media (max-width: 768px) {
+  /* Grid'i tek sütuna düşür */
+  .footer-container {
+    grid-template-columns: 1fr;
+    /* Sütunlar arası boşluğu azalt */
+    gap: 24px;
+  }
+
+  /* Mobilde padding'i küçült */
+  .footer {
+    padding: 30px 16px 16px;
+  }
+}
