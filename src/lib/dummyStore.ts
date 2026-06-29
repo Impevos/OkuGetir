@@ -1,4 +1,4 @@
-import dummyData from '../dummy-data.json';
+import dummyData from '../../dummy-data.json';
 import type { DummyDataStore } from '../types/book';
 
 const STORAGE_KEY = 'oku-getir-dummy-store';
