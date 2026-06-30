@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
+import { ensureDemoUserInSupabase } from '../lib/ensureDemoUser';
 import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabaseClient';
 import { DEMO_USER_ID, getDummyStore, updateDummyStore } from '../lib/dummyStore';
 import type { Favorite } from '../types/book';
 import { getBookById } from './useBooks';
+import { AUTH_CHANGE_EVENT, getDemoUserId } from '../src/lib/demoSession';
 
 function mapFavorite(row: Record<string, unknown>): Favorite {
   return {
@@ -49,6 +51,8 @@ export async function addToFavorite(
   const supabase = getSupabaseClient();
 
   if (supabase) {
+    await ensureDemoUserInSupabase(userId);
+
     const { data, error } = await supabase
       .from('favorites')
       .insert({ user_id: userId, book_id: bookId })
@@ -119,16 +123,33 @@ export async function removeFromFavorite(
   });
 }
 
-/** React bileşenlerinde kullanım için hook */
-export function useFavorites(userId: string = DEMO_USER_ID) {
+/** React bileşenlerinde kullanım — giriş yapan kullanıcının favorileri */
+export function useFavorites(explicitUserId?: string) {
+  const [sessionUserId, setSessionUserId] = useState<string | null>(() =>
+    typeof window !== 'undefined' ? getDemoUserId() : null,
+  );
+  const userId = explicitUserId ?? sessionUserId;
+  const loggedIn = Boolean(userId);
+
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const syncUser = () => setSessionUserId(getDemoUserId());
+    syncUser();
+    window.addEventListener(AUTH_CHANGE_EVENT, syncUser);
+    return () => window.removeEventListener(AUTH_CHANGE_EVENT, syncUser);
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
+      if (!userId) {
+        setFavorites([]);
+        return;
+      }
       setFavorites(await getFavorites(userId));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Favoriler yüklenemedi.');
@@ -141,9 +162,17 @@ export function useFavorites(userId: string = DEMO_USER_ID) {
     load();
   }, [load]);
 
+  const ensureUser = () => {
+    if (!userId) {
+      throw new Error('Favoriler için giriş yapmalısınız.');
+    }
+    return userId;
+  };
+
   const add = useCallback(
     async (bookId: string) => {
-      await addToFavorite(bookId, userId);
+      const id = ensureUser();
+      await addToFavorite(bookId, id);
       await load();
     },
     [userId, load],
@@ -151,21 +180,24 @@ export function useFavorites(userId: string = DEMO_USER_ID) {
 
   const remove = useCallback(
     async (bookId: string) => {
-      await removeFromFavorite(bookId, userId);
+      const id = ensureUser();
+      await removeFromFavorite(bookId, id);
       await load();
     },
     [userId, load],
   );
 
   const isFavorite = useCallback(
-    (bookId: string) => favorites.some((f) => f.bookId === bookId),
-    [favorites],
+    (bookId: string) => (userId ? favorites.some((f) => f.bookId === bookId) : false),
+    [favorites, userId],
   );
 
   return {
     favorites,
     loading,
     error,
+    loggedIn,
+    userId,
     addToFavorite: add,
     removeFromFavorite: remove,
     isFavorite,

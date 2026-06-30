@@ -6,15 +6,15 @@ import { useActionToast } from '../hooks/useActionToast';
 import { formatPrice } from '../utils/bookHelpers';
 
 export function CartPage() {
-  const { items, loading, error, removeFromCart } = useCart();
+  const { items, loading, error, loggedIn, removeFromCart } = useCart();
   const { message, showMessage } = useActionToast();
 
   const handleRemove = async (cartItemId: string) => {
     try {
       await removeFromCart(cartItemId);
       showMessage('Sepetten çıkarıldı.');
-    } catch {
-      showMessage('İşlem yapılamadı. Lütfen tekrar deneyin.');
+    } catch (err) {
+      showMessage(err instanceof Error ? err.message : 'İşlem yapılamadı. Lütfen tekrar deneyin.');
     }
   };
 
@@ -45,7 +45,23 @@ export function CartPage() {
         <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
       )}
 
-      {!loading && !error && items.length === 0 && (
+      {!loading && !error && !loggedIn && (
+        <div className="rounded-2xl border border-dashed border-emerald-200 bg-white px-6 py-16 text-center">
+          <ShoppingCart className="mx-auto h-12 w-12 text-slate-300" aria-hidden="true" />
+          <p className="mt-4 text-lg font-medium text-slate-700">Sepetini görmek için giriş yap</p>
+          <p className="mt-2 text-sm text-slate-500">
+            Giriş yaptığında sepetin sadece senin hesabına bağlı olur.
+          </p>
+          <Link
+            to="/giris"
+            className="mt-6 inline-flex rounded-xl bg-oku-green px-5 py-2.5 text-sm font-semibold text-white hover:bg-oku-green-dark"
+          >
+            Giriş Yap
+          </Link>
+        </div>
+      )}
+
+      {!loading && !error && loggedIn && items.length === 0 && (
         <div className="rounded-2xl border border-dashed border-emerald-200 bg-white px-6 py-16 text-center">
           <ShoppingCart className="mx-auto h-12 w-12 text-slate-300" aria-hidden="true" />
           <p className="mt-4 text-lg font-medium text-slate-700">Sepetin boş</p>
@@ -61,7 +77,7 @@ export function CartPage() {
         </div>
       )}
 
-      {!loading && !error && items.length > 0 && (
+      {!loading && !error && loggedIn && items.length > 0 && (
         <div className="space-y-4">
           {items.map((item) => (
             <article

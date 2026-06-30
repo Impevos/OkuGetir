@@ -6,7 +6,7 @@ import { ActionToast } from '../components/ui/ActionToast';
 import { useActionToast } from '../hooks/useActionToast';
 
 export function FavoritesPage() {
-  const { favorites, loading, error, addToFavorite, removeFromFavorite, isFavorite } =
+  const { favorites, loading, error, loggedIn, addToFavorite, removeFromFavorite, isFavorite } =
     useFavorites();
   const { message, showMessage } = useActionToast();
 
@@ -19,8 +19,8 @@ export function FavoritesPage() {
         await addToFavorite(bookId);
         showMessage('Favorilere eklendi.');
       }
-    } catch {
-      showMessage('İşlem yapılamadı. Lütfen tekrar deneyin.');
+    } catch (err) {
+      showMessage(err instanceof Error ? err.message : 'İşlem yapılamadı. Lütfen tekrar deneyin.');
     }
   };
 
@@ -46,7 +46,23 @@ export function FavoritesPage() {
         <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
       )}
 
-      {!loading && !error && favorites.length === 0 && (
+      {!loading && !error && !loggedIn && (
+        <div className="rounded-2xl border border-dashed border-emerald-200 bg-white px-6 py-16 text-center">
+          <Heart className="mx-auto h-12 w-12 text-slate-300" aria-hidden="true" />
+          <p className="mt-4 text-lg font-medium text-slate-700">Favorilerini görmek için giriş yap</p>
+          <p className="mt-2 text-sm text-slate-500">
+            Giriş yaptığında favorilerin sadece senin hesabına bağlı olur.
+          </p>
+          <Link
+            to="/giris"
+            className="mt-6 inline-flex rounded-xl bg-oku-green px-5 py-2.5 text-sm font-semibold text-white hover:bg-oku-green-dark"
+          >
+            Giriş Yap
+          </Link>
+        </div>
+      )}
+
+      {!loading && !error && loggedIn && favorites.length === 0 && (
         <div className="rounded-2xl border border-dashed border-emerald-200 bg-white px-6 py-16 text-center">
           <Heart className="mx-auto h-12 w-12 text-slate-300" aria-hidden="true" />
           <p className="mt-4 text-lg font-medium text-slate-700">Henüz favori kitabın yok</p>
@@ -62,7 +78,7 @@ export function FavoritesPage() {
         </div>
       )}
 
-      {!loading && !error && favorites.length > 0 && (
+      {!loading && !error && loggedIn && favorites.length > 0 && (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {favorites.map((favorite) =>
             favorite.book ? (

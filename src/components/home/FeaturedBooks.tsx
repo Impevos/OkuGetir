@@ -25,8 +25,8 @@ export function FeaturedBooks() {
         await addToFavorite(bookId);
         showMessage('Favorilere eklendi.');
       }
-    } catch {
-      showMessage('İşlem yapılamadı. Lütfen tekrar deneyin.');
+    } catch (err) {
+      showMessage(err instanceof Error ? err.message : 'İşlem yapılamadı. Lütfen tekrar deneyin.');
     }
   };
 
@@ -34,8 +34,8 @@ export function FeaturedBooks() {
     try {
       await addToCart(bookId);
       showMessage('Sepete eklendi.');
-    } catch {
-      showMessage('Sepete eklenemedi. Lütfen tekrar deneyin.');
+    } catch (err) {
+      showMessage(err instanceof Error ? err.message : 'Sepete eklenemedi. Lütfen tekrar deneyin.');
     }
   };
 

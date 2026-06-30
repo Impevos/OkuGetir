@@ -94,7 +94,8 @@ JOIN public.categories c ON c.id = b.category_id;
 
 -- Örnek veri
 INSERT INTO public.users (id, name, email, created_at) VALUES
-  ('a1000001-0000-4000-8000-000000000001', 'Ayşe Yılmaz', 'ayse.yilmaz@example.com', '2026-02-01T09:30:00+00')
+  ('a1000001-0000-4000-8000-000000000001', 'Ayşe Yılmaz', 'ayse.yilmaz@example.com', '2026-02-01T09:30:00+00'),
+  ('b2000001-0000-4000-8000-000000000002', 'Mehmet Demir', 'mehmet.demo@example.com', '2026-02-15T10:00:00+00')
 ON CONFLICT (email) DO NOTHING;
 
 INSERT INTO public.books (id, title, author, description, category_id, image, condition, rent_price, sale_price, is_available, seller_name, created_at) VALUES

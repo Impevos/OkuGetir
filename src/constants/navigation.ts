@@ -11,4 +11,5 @@ export const NAV_LINKS: NavLink[] = [
   { label: 'Favoriler', href: '/favoriler' },
   { label: 'Sepet', href: '/sepet' },
   { label: 'Giriş Yap', href: '/giris' },
+  { label: 'Kayıt Ol', href: '/kayit' },
 ];
