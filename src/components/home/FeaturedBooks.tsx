@@ -2,22 +2,39 @@ import { useBooks } from '../../../hooks/useBooks';
 import { useFavorites } from '../../../hooks/useFavorites';
 import { useCart } from '../../../hooks/useCart';
 import { BookCard } from '../books/BookCard';
+import { ActionToast } from '../ui/ActionToast';
+import { useActionToast } from '../../hooks/useActionToast';
 
 const FEATURED_COUNT = 6;
 
 export function FeaturedBooks() {
   const { books, loading, error } = useBooks();
-  const { favorites, addToFavorite, removeFromFavorite, isFavorite } = useFavorites();
+  const { addToFavorite, removeFromFavorite, isFavorite } = useFavorites();
   const { addToCart } = useCart();
+  const { message, showMessage } = useActionToast();
 
   const featuredBooks = books.slice(0, FEATURED_COUNT);
-  const favoriteIds = new Set(favorites.map((f) => f.bookId));
 
   const handleToggleFavorite = async (bookId: string) => {
-    if (isFavorite(bookId)) {
-      await removeFromFavorite(bookId);
-    } else {
-      await addToFavorite(bookId);
+    try {
+      if (isFavorite(bookId)) {
+        await removeFromFavorite(bookId);
+        showMessage('Favorilerden çıkarıldı.');
+      } else {
+        await addToFavorite(bookId);
+        showMessage('Favorilere eklendi.');
+      }
+    } catch {
+      showMessage('İşlem yapılamadı. Lütfen tekrar deneyin.');
+    }
+  };
+
+  const handleAddToCart = async (bookId: string) => {
+    try {
+      await addToCart(bookId);
+      showMessage('Sepete eklendi.');
+    } catch {
+      showMessage('Sepete eklenemedi. Lütfen tekrar deneyin.');
     }
   };
 
@@ -53,13 +70,15 @@ export function FeaturedBooks() {
             <BookCard
               key={book.id}
               book={book}
-              isFavorite={favoriteIds.has(book.id)}
+              isFavorite={isFavorite(book.id)}
               onToggleFavorite={handleToggleFavorite}
-              onAddToCart={addToCart}
+              onAddToCart={handleAddToCart}
             />
           ))}
         </div>
       )}
+
+      <ActionToast message={message} />
     </section>
   );
 }
