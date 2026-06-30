@@ -39,4 +39,4 @@ export function updateDummyStore(updater: (store: DummyDataStore) => void): Dumm
 }
 
 /** Demo kullanıcı — gerçek auth gelene kadar sabit */
-export const DEMO_USER_ID = 'u1000001-0000-4000-8000-000000000001';
+export const DEMO_USER_ID = 'a1000001-0000-4000-8000-000000000001';

@@ -16,16 +16,16 @@ CREATE TABLE IF NOT EXISTS public.categories (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Başlangıç kategorileri
-INSERT INTO public.categories (name, slug) VALUES
-  ('Roman', 'roman'),
-  ('Kişisel Gelişim', 'kisisel-gelisim'),
-  ('Üniversite Kitapları', 'universite-kitaplari'),
-  ('Lise Ders Kitapları', 'lise-ders-kitaplari'),
-  ('Yazılım ve Teknoloji', 'yazilim-ve-teknoloji'),
-  ('Çocuk Kitapları', 'cocuk-kitaplari'),
-  ('Sınav Hazırlık', 'sinav-hazirlik'),
-  ('Akademik Kitaplar', 'akademik-kitaplar')
+-- Başlangıç kategorileri (sabit id — dummy-data.json ile aynı)
+INSERT INTO public.categories (id, name, slug) VALUES
+  ('c1000001-0000-4000-8000-000000000001', 'Roman', 'roman'),
+  ('c1000001-0000-4000-8000-000000000002', 'Kişisel Gelişim', 'kisisel-gelisim'),
+  ('c1000001-0000-4000-8000-000000000003', 'Üniversite Kitapları', 'universite-kitaplari'),
+  ('c1000001-0000-4000-8000-000000000004', 'Lise Ders Kitapları', 'lise-ders-kitaplari'),
+  ('c1000001-0000-4000-8000-000000000005', 'Yazılım ve Teknoloji', 'yazilim-ve-teknoloji'),
+  ('c1000001-0000-4000-8000-000000000006', 'Çocuk Kitapları', 'cocuk-kitaplari'),
+  ('c1000001-0000-4000-8000-000000000007', 'Sınav Hazırlık', 'sinav-hazirlik'),
+  ('c1000001-0000-4000-8000-000000000008', 'Akademik Kitaplar', 'akademik-kitaplar')
 ON CONFLICT (slug) DO NOTHING;
 
 -- ------------------------------------------------------------

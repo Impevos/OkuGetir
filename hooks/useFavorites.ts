@@ -55,7 +55,20 @@ export async function addToFavorite(
       .select('*')
       .single();
 
-    if (error) throw new Error(error.message);
+    if (error) {
+      if (error.code === '23505') {
+        const { data: existing, error: fetchError } = await supabase
+          .from('favorites')
+          .select('*')
+          .eq('user_id', userId)
+          .eq('book_id', bookId)
+          .single();
+
+        if (fetchError) throw new Error(fetchError.message);
+        return mapFavorite(existing);
+      }
+      throw new Error(error.message);
+    }
     return mapFavorite(data);
   }
 

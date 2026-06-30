@@ -1,19 +1,37 @@
 import { useEffect, useState } from 'react';
 import { BookOpen, Menu, X } from 'lucide-react';
+import { Link, NavLink } from 'react-router-dom';
 import { NAV_LINKS } from '../../constants/navigation';
 
-const MAIN_LINKS = NAV_LINKS.filter((link) => link.label !== 'Giriş Yap');
-const LOGIN_LINK = NAV_LINKS.find((link) => link.label === 'Giriş Yap')!;
-
-function navLinkClass(isLogin = false): string {
+function navLinkClass(isActive: boolean, isLogin = false): string {
   const base =
     'relative rounded-xl text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oku-green/40 focus-visible:ring-offset-2';
 
   if (isLogin) {
-    return `${base} bg-oku-green px-4 py-2.5 text-white shadow-sm hover:-translate-y-0.5 hover:bg-oku-green-dark hover:shadow-md active:translate-y-0`;
+    return `${base} ml-2 bg-oku-green px-4 py-2.5 text-white shadow-sm hover:-translate-y-0.5 hover:bg-oku-green-dark hover:shadow-md active:translate-y-0 ${
+      isActive ? 'ring-2 ring-oku-green/30' : ''
+    }`;
+  }
+
+  if (isActive) {
+    return `${base} bg-emerald-50 px-3.5 py-2.5 font-semibold text-oku-green`;
   }
 
   return `${base} px-3.5 py-2.5 text-slate-600 hover:bg-emerald-50/80 hover:text-oku-green`;
+}
+
+function mobileNavLinkClass(isActive: boolean, isLogin = false): string {
+  if (isLogin) {
+    return `block rounded-xl px-4 py-3 text-center text-sm font-semibold text-white shadow-sm transition-all hover:bg-oku-green-dark ${
+      isActive ? 'bg-oku-green-dark' : 'bg-oku-green'
+    }`;
+  }
+
+  return `block rounded-xl px-4 py-3 text-sm font-medium transition-colors ${
+    isActive
+      ? 'bg-emerald-50 font-semibold text-oku-green'
+      : 'text-slate-600 hover:bg-emerald-50 hover:text-oku-green'
+  }`;
 }
 
 export function Navbar() {
@@ -43,8 +61,8 @@ export function Navbar() {
         className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:h-[4.25rem] lg:px-8"
         aria-label="Ana navigasyon"
       >
-        <a
-          href="/"
+        <Link
+          to="/"
           className="group flex shrink-0 items-center gap-2.5 rounded-xl py-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oku-green/40 focus-visible:ring-offset-2"
         >
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-oku-green to-oku-green-light text-white shadow-sm transition-transform duration-200 group-hover:scale-105">
@@ -53,21 +71,23 @@ export function Navbar() {
           <span className="text-lg font-bold tracking-tight text-oku-green sm:text-xl">
             Oku Getir
           </span>
-        </a>
+        </Link>
 
         <ul className="hidden items-center gap-0.5 xl:flex">
-          {MAIN_LINKS.map((link) => (
-            <li key={link.href}>
-              <a href={link.href} className={navLinkClass()}>
-                {link.label}
-              </a>
-            </li>
-          ))}
-          <li className="ml-2 pl-1">
-            <a href={LOGIN_LINK.href} className={navLinkClass(true)}>
-              {LOGIN_LINK.label}
-            </a>
-          </li>
+          {NAV_LINKS.map((link) => {
+            const isLogin = link.label === 'Giriş Yap';
+            return (
+              <li key={link.href}>
+                <NavLink
+                  to={link.href}
+                  end={link.href === '/'}
+                  className={({ isActive }) => navLinkClass(isActive, isLogin)}
+                >
+                  {link.label}
+                </NavLink>
+              </li>
+            );
+          })}
         </ul>
 
         <button
@@ -94,26 +114,21 @@ export function Navbar() {
         aria-hidden={!mobileOpen}
       >
         <ul className="mx-auto max-w-7xl space-y-1 px-4 py-4 sm:px-6">
-          {MAIN_LINKS.map((link) => (
-            <li key={link.href}>
-              <a
-                href={link.href}
-                onClick={closeMobile}
-                className="block rounded-xl px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-emerald-50 hover:text-oku-green"
-              >
-                {link.label}
-              </a>
-            </li>
-          ))}
-          <li className="pt-2">
-            <a
-              href={LOGIN_LINK.href}
-              onClick={closeMobile}
-              className="block rounded-xl bg-oku-green px-4 py-3 text-center text-sm font-semibold text-white shadow-sm transition-all hover:bg-oku-green-dark"
-            >
-              {LOGIN_LINK.label}
-            </a>
-          </li>
+          {NAV_LINKS.map((link) => {
+            const isLogin = link.label === 'Giriş Yap';
+            return (
+              <li key={link.href} className={isLogin ? 'pt-2' : undefined}>
+                <NavLink
+                  to={link.href}
+                  end={link.href === '/'}
+                  onClick={closeMobile}
+                  className={({ isActive }) => mobileNavLinkClass(isActive, isLogin)}
+                >
+                  {link.label}
+                </NavLink>
+              </li>
+            );
+          })}
         </ul>
       </div>
     </header>
