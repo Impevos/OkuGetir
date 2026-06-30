@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { BookOpen, Menu, X } from 'lucide-react';
-import { Link, NavLink } from 'react-router-dom';
+import { BookOpen, LogOut, Menu, User, X } from 'lucide-react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { NAV_LINKS } from '../../constants/navigation';
+import { useDemoSession } from '../../hooks/useDemoSession';
 
 function navLinkClass(isActive: boolean, isLogin = false): string {
   const base =
@@ -34,10 +35,42 @@ function mobileNavLinkClass(isActive: boolean, isLogin = false): string {
   }`;
 }
 
+function UserMenu({ onLogout, name }: { onLogout: () => void; name: string }) {
+  return (
+    <div className="ml-2 flex items-center gap-2">
+      <span className="hidden items-center gap-2 rounded-xl bg-emerald-50 px-3 py-2 text-sm font-medium text-oku-green sm:inline-flex">
+        <User className="h-4 w-4" aria-hidden="true" />
+        {name}
+      </span>
+      <button
+        type="button"
+        onClick={onLogout}
+        className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 transition-all hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+      >
+        <LogOut className="h-4 w-4" aria-hidden="true" />
+        <span className="hidden sm:inline">Çıkış</span>
+      </button>
+    </div>
+  );
+}
+
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { loggedIn, name, logout } = useDemoSession();
+  const navigate = useNavigate();
 
   const closeMobile = () => setMobileOpen(false);
+
+  const authLabels = new Set(['Giriş Yap', 'Kayıt Ol']);
+  const mainLinks = NAV_LINKS.filter((link) => !authLabels.has(link.label));
+  const loginLink = NAV_LINKS.find((link) => link.label === 'Giriş Yap')!;
+  const registerLink = NAV_LINKS.find((link) => link.label === 'Kayıt Ol')!;
+
+  const handleLogout = () => {
+    logout();
+    closeMobile();
+    navigate('/');
+  };
 
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? 'hidden' : '';
@@ -74,20 +107,39 @@ export function Navbar() {
         </Link>
 
         <ul className="hidden items-center gap-0.5 xl:flex">
-          {NAV_LINKS.map((link) => {
-            const isLogin = link.label === 'Giriş Yap';
-            return (
-              <li key={link.href}>
+          {mainLinks.map((link) => (
+            <li key={link.href}>
+              <NavLink
+                to={link.href}
+                end={link.href === '/'}
+                className={({ isActive }) => navLinkClass(isActive)}
+              >
+                {link.label}
+              </NavLink>
+            </li>
+          ))}
+          <li>
+            {loggedIn && name ? (
+              <UserMenu name={name} onLogout={handleLogout} />
+            ) : (
+              <div className="ml-2 flex items-center gap-2">
                 <NavLink
-                  to={link.href}
-                  end={link.href === '/'}
-                  className={({ isActive }) => navLinkClass(isActive, isLogin)}
+                  to={registerLink.href}
+                  className={({ isActive }) =>
+                    `${navLinkClass(isActive)} border border-emerald-200 bg-white px-4 py-2.5 text-oku-green hover:border-oku-green/30`
+                  }
                 >
-                  {link.label}
+                  {registerLink.label}
                 </NavLink>
-              </li>
-            );
-          })}
+                <NavLink
+                  to={loginLink.href}
+                  className={({ isActive }) => navLinkClass(isActive, true)}
+                >
+                  {loginLink.label}
+                </NavLink>
+              </div>
+            )}
+          </li>
         </ul>
 
         <button
@@ -109,26 +161,60 @@ export function Navbar() {
       <div
         id="mobile-menu"
         className={`overflow-hidden border-t border-emerald-100/80 bg-white transition-[max-height,opacity] duration-300 ease-in-out xl:hidden ${
-          mobileOpen ? 'max-h-[32rem] opacity-100' : 'max-h-0 opacity-0'
+          mobileOpen ? 'max-h-[36rem] opacity-100' : 'max-h-0 opacity-0'
         }`}
         aria-hidden={!mobileOpen}
       >
         <ul className="mx-auto max-w-7xl space-y-1 px-4 py-4 sm:px-6">
-          {NAV_LINKS.map((link) => {
-            const isLogin = link.label === 'Giriş Yap';
-            return (
-              <li key={link.href} className={isLogin ? 'pt-2' : undefined}>
-                <NavLink
-                  to={link.href}
-                  end={link.href === '/'}
-                  onClick={closeMobile}
-                  className={({ isActive }) => mobileNavLinkClass(isActive, isLogin)}
+          {mainLinks.map((link) => (
+            <li key={link.href}>
+              <NavLink
+                to={link.href}
+                end={link.href === '/'}
+                onClick={closeMobile}
+                className={({ isActive }) => mobileNavLinkClass(isActive)}
+              >
+                {link.label}
+              </NavLink>
+            </li>
+          ))}
+          <li className="pt-2">
+            {loggedIn && name ? (
+              <div className="space-y-2 rounded-xl bg-emerald-50 p-4">
+                <p className="flex items-center gap-2 text-sm font-semibold text-oku-green">
+                  <User className="h-4 w-4" aria-hidden="true" />
+                  {name}
+                </p>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-white px-4 py-3 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50"
                 >
-                  {link.label}
+                  <LogOut className="h-4 w-4" aria-hidden="true" />
+                  Çıkış Yap
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <NavLink
+                  to={registerLink.href}
+                  onClick={closeMobile}
+                  className={({ isActive }) =>
+                    `${mobileNavLinkClass(isActive)} border border-emerald-200 bg-white text-oku-green`
+                  }
+                >
+                  {registerLink.label}
                 </NavLink>
-              </li>
-            );
-          })}
+                <NavLink
+                  to={loginLink.href}
+                  onClick={closeMobile}
+                  className={({ isActive }) => mobileNavLinkClass(isActive, true)}
+                >
+                  {loginLink.label}
+                </NavLink>
+              </div>
+            )}
+          </li>
         </ul>
       </div>
     </header>

@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
+import { ensureDemoUserInSupabase } from '../lib/ensureDemoUser';
 import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabaseClient';
 import { DEMO_USER_ID, getDummyStore, updateDummyStore } from '../lib/dummyStore';
 import type { Book, CartItem } from '../types/book';
 import { getBookById } from './useBooks';
+import { AUTH_CHANGE_EVENT, getDemoUserId } from '../src/lib/demoSession';
 
 function mapCartItem(row: Record<string, unknown>): CartItem {
   return {
@@ -50,6 +52,8 @@ export async function addToCart(
   const supabase = getSupabaseClient();
 
   if (supabase) {
+    await ensureDemoUserInSupabase(userId);
+
     const { data: existing } = await supabase
       .from('cart_items')
       .select('*')
@@ -124,16 +128,33 @@ export async function removeFromCart(
   });
 }
 
-/** React bileşenlerinde kullanım için hook */
-export function useCart(userId: string = DEMO_USER_ID) {
+/** React bileşenlerinde kullanım — giriş yapan kullanıcının sepeti */
+export function useCart(explicitUserId?: string) {
+  const [sessionUserId, setSessionUserId] = useState<string | null>(() =>
+    typeof window !== 'undefined' ? getDemoUserId() : null,
+  );
+  const userId = explicitUserId ?? sessionUserId;
+  const loggedIn = Boolean(userId);
+
   const [items, setItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const syncUser = () => setSessionUserId(getDemoUserId());
+    syncUser();
+    window.addEventListener(AUTH_CHANGE_EVENT, syncUser);
+    return () => window.removeEventListener(AUTH_CHANGE_EVENT, syncUser);
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
+      if (!userId) {
+        setItems([]);
+        return;
+      }
       setItems(await getCartItems(userId));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Sepet yüklenemedi.');
@@ -146,9 +167,17 @@ export function useCart(userId: string = DEMO_USER_ID) {
     load();
   }, [load]);
 
+  const ensureUser = () => {
+    if (!userId) {
+      throw new Error('Sepet için giriş yapmalısınız.');
+    }
+    return userId;
+  };
+
   const add = useCallback(
     async (bookId: string) => {
-      await addToCart(bookId, userId);
+      const id = ensureUser();
+      await addToCart(bookId, id);
       await load();
     },
     [userId, load],
@@ -156,7 +185,8 @@ export function useCart(userId: string = DEMO_USER_ID) {
 
   const remove = useCallback(
     async (cartItemId: string) => {
-      await removeFromCart(cartItemId, userId);
+      const id = ensureUser();
+      await removeFromCart(cartItemId, id);
       await load();
     },
     [userId, load],
@@ -166,6 +196,8 @@ export function useCart(userId: string = DEMO_USER_ID) {
     items,
     loading,
     error,
+    loggedIn,
+    userId,
     addToCart: add,
     removeFromCart: remove,
     reload: load,
