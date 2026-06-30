@@ -18,6 +18,10 @@ export default {
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
+      boxShadow: {
+        card: '0 8px 30px rgba(45, 106, 79, 0.06)',
+        'card-hover': '0 16px 40px rgba(45, 106, 79, 0.12)',
+      },
     },
   },
   plugins: [],

@@ -3,7 +3,17 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+
   body {
     @apply bg-cream text-slate-800 antialiased;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    @apply bg-oku-green/20 text-oku-green-dark;
   }
 }

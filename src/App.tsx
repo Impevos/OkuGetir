@@ -1,5 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { MainLayout } from './components/layout/MainLayout';
+import { BookDetailPage } from './pages/BookDetailPage';
 import { CartPage } from './pages/CartPage';
 import { CategoriesPage } from './pages/CategoriesPage';
 import { CategoryPage } from './pages/CategoryPage';
@@ -13,6 +14,7 @@ export default function App() {
       <MainLayout>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/kitap/:id" element={<BookDetailPage />} />
           <Route path="/favoriler" element={<FavoritesPage />} />
           <Route path="/sepet" element={<CartPage />} />
           <Route path="/kategoriler" element={<CategoriesPage />} />

@@ -8,7 +8,7 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
   return (
-    <div className="flex min-h-screen flex-col bg-cream">
+    <div className="flex min-h-screen flex-col overflow-x-hidden bg-cream">
       <Navbar />
       <main className="flex-1">{children}</main>
       <Footer />
