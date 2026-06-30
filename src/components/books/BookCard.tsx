@@ -1,4 +1,5 @@
 import { Eye, Heart, ShoppingCart } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import type { Book } from '../../../types/book';
 import {
   CONDITION_LABELS,
@@ -76,13 +77,13 @@ export function BookCard({
         )}
 
         <div className="mt-auto flex gap-2.5 pt-5">
-          <a
-            href={`/kitap/${book.id}`}
+          <Link
+            to={`/kitap/${book.id}`}
             className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-semibold text-slate-700 transition-all hover:border-oku-green/40 hover:text-oku-green"
           >
             <Eye className="h-3.5 w-3.5" aria-hidden="true" />
             Detay
-          </a>
+          </Link>
           <button
             type="button"
             disabled={!book.isAvailable}
