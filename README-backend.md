@@ -2,6 +2,8 @@
 
 İkinci el kitap kiralama/satış platformu **Oku Getir** için Supabase şeması, TypeScript tipleri ve veri erişim hook'ları.
 
+**Hızlı linkler:** [Frontend entegrasyon](FRONTEND-ENTEGRASYON.md) · [Kullanım kılavuzu](FRONTEND-KULLANIM.md) · [Sepet/favori mantığı](SEPET-FAVORI-MANTIGI.md) · [Teknik not](TEKNIK-NOT.md) · [Kitap listesi](books-list.json)
+
 ---
 
 ## Veri modeli
