@@ -1,14 +1,20 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabaseClient';
 import { DEMO_USER_ID, getDummyStore, updateDummyStore } from '../lib/dummyStore';
-import type { Book, CartItem } from '../types/book';
+import type { Book, CartItem, OrderType } from '../types/book';
 import { getBookById } from './useBooks';
+
+const CART_CHANGED = 'okugetir:cart-changed';
+function notifyCartChanged() {
+  window.dispatchEvent(new Event(CART_CHANGED));
+}
 
 function mapCartItem(row: Record<string, unknown>): CartItem {
   return {
     id: row.id as string,
     userId: (row.userId as string) ?? (row.user_id as string),
     bookId: (row.bookId as string) ?? (row.book_id as string),
+    orderType: ((row.orderType as string) ?? (row.order_type as string) ?? 'buy') as OrderType,
     quantity: Number(row.quantity ?? 1),
     addedAt: (row.addedAt as string) ?? (row.added_at as string),
   };
@@ -42,9 +48,10 @@ export async function getCartItems(userId: string = DEMO_USER_ID): Promise<CartI
   return attachBooks(items);
 }
 
-/** Sepete kitap ekler (aynı kitap varsa quantity artırır) */
+/** Sepete kitap ekler (aynı kitap + aynı tip varsa quantity artırır) */
 export async function addToCart(
   bookId: string,
+  orderType: OrderType = 'buy',
   userId: string = DEMO_USER_ID,
 ): Promise<CartItem> {
   const supabase = getSupabaseClient();
@@ -55,6 +62,7 @@ export async function addToCart(
       .select('*')
       .eq('user_id', userId)
       .eq('book_id', bookId)
+      .eq('order_type', orderType)
       .maybeSingle();
 
     if (existing) {
@@ -71,7 +79,7 @@ export async function addToCart(
 
     const { data, error } = await supabase
       .from('cart_items')
-      .insert({ user_id: userId, book_id: bookId, quantity: 1 })
+      .insert({ user_id: userId, book_id: bookId, order_type: orderType, quantity: 1 })
       .select('*')
       .single();
 
@@ -82,7 +90,7 @@ export async function addToCart(
   let created!: CartItem;
   updateDummyStore((store) => {
     const found = store.cartItems.find(
-      (c) => c.userId === userId && c.bookId === bookId,
+      (c) => c.userId === userId && c.bookId === bookId && c.orderType === orderType,
     );
     if (found) {
       found.quantity += 1;
@@ -93,6 +101,7 @@ export async function addToCart(
       id: crypto.randomUUID(),
       userId,
       bookId,
+      orderType,
       quantity: 1,
       addedAt: new Date().toISOString(),
     };
@@ -147,9 +156,10 @@ export function useCart(userId: string = DEMO_USER_ID) {
   }, [load]);
 
   const add = useCallback(
-    async (bookId: string) => {
-      await addToCart(bookId, userId);
+    async (bookId: string, orderType: OrderType = 'buy') => {
+      await addToCart(bookId, orderType, userId);
       await load();
+      notifyCartChanged();
     },
     [userId, load],
   );
@@ -158,9 +168,19 @@ export function useCart(userId: string = DEMO_USER_ID) {
     async (cartItemId: string) => {
       await removeFromCart(cartItemId, userId);
       await load();
+      notifyCartChanged();
     },
     [userId, load],
   );
+
+  const loadRef = useRef(load);
+  loadRef.current = load;
+
+  useEffect(() => {
+    const handler = () => loadRef.current();
+    window.addEventListener(CART_CHANGED, handler);
+    return () => window.removeEventListener(CART_CHANGED, handler);
+  }, []);
 
   return {
     items,

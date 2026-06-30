@@ -1,11 +1,21 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useFavorites } from '../hooks/useFavorites';
 import { useCart } from '../hooks/useCart';
 import ConditionBadge from '../components/ConditionBadge';
+import type { OrderType } from '../types/book';
 
 export default function FavoritesPage() {
   const { favorites, loading, error, removeFromFavorite } = useFavorites();
   const { addToCart } = useCart();
+  const [cartMessage, setCartMessage] = useState<string | null>(null);
+
+  const handleAddToCart = async (bookId: string, orderType: OrderType, bookTitle?: string) => {
+    await addToCart(bookId, orderType);
+    const label = orderType === 'rent' ? 'Kiralama' : 'Satın alma';
+    setCartMessage(`${label} sepete eklendi: ${bookTitle ?? 'Kitap'}`);
+    setTimeout(() => setCartMessage(null), 2000);
+  };
 
   if (loading) {
     return (
@@ -22,6 +32,12 @@ export default function FavoritesPage() {
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 mb-6">
           {error}
+        </div>
+      )}
+
+      {cartMessage && (
+        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-lg text-sm text-center mb-6 animate-pulse">
+          {cartMessage}
         </div>
       )}
 
@@ -88,16 +104,26 @@ export default function FavoritesPage() {
               </div>
 
               <div className="shrink-0 flex flex-col gap-2 self-center">
-                <button
-                  onClick={async () => {
-                    if (fav.book) await addToCart(fav.bookId);
-                  }}
-                  disabled={!fav.book?.isAvailable}
-                  className="p-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  title="Sepete ekle"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
-                </button>
+                {fav.book?.rentPrice != null && (
+                  <button
+                    onClick={() => handleAddToCart(fav.bookId, 'rent', fav.book?.title)}
+                    disabled={!fav.book?.isAvailable}
+                    className="px-3 py-1.5 text-xs font-medium text-primary-600 bg-primary-50 hover:bg-primary-100 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    title="Kiralama olarak sepete ekle"
+                  >
+                    Kirala
+                  </button>
+                )}
+                {fav.book?.salePrice != null && (
+                  <button
+                    onClick={() => handleAddToCart(fav.bookId, 'buy', fav.book?.title)}
+                    disabled={!fav.book?.isAvailable}
+                    className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    title="Satın alma olarak sepete ekle"
+                  >
+                    Satın Al
+                  </button>
+                )}
                 <button
                   onClick={() => removeFromFavorite(fav.bookId)}
                   className="p-2 text-red-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"

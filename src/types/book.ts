@@ -38,11 +38,15 @@ export interface Book {
   createdAt: string;
 }
 
+/** Sipariş tipi: kiralama veya satın alma */
+export type OrderType = 'rent' | 'buy';
+
 /** Sepet satırı */
 export interface CartItem {
   id: string;
   userId: string;
   bookId: string;
+  orderType: OrderType;
   quantity: number;
   addedAt: string;
   /** UI için opsiyonel: kitap detayı birlikte yüklenebilir */

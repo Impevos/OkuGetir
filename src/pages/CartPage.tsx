@@ -5,7 +5,9 @@ export default function CartPage() {
   const { items, loading, error, removeFromCart } = useCart();
 
   const total = items.reduce((sum, item) => {
-    const price = item.book?.salePrice ?? item.book?.rentPrice ?? 0;
+    const price = item.orderType === 'rent'
+      ? (item.book?.rentPrice ?? 0)
+      : (item.book?.salePrice ?? item.book?.rentPrice ?? 0);
     return sum + price * item.quantity;
   }, 0);
 
@@ -73,14 +75,22 @@ export default function CartPage() {
 
                 <div className="mt-auto pt-2 flex items-end justify-between">
                   <div>
-                    {item.book?.salePrice != null && (
-                      <p className="font-semibold text-gray-900">{item.book.salePrice}₺</p>
-                    )}
-                    {item.book?.rentPrice != null && item.book?.salePrice == null && (
-                      <p className="font-semibold text-primary-600">{item.book.rentPrice}₺ / kira</p>
+                    {item.orderType === 'rent' ? (
+                      <p className="font-semibold text-primary-600">{item.book?.rentPrice ?? 0}₺ <span className="text-xs font-normal text-gray-500">/ kira</span></p>
+                    ) : (
+                      <p className="font-semibold text-gray-900">{item.book?.salePrice ?? item.book?.rentPrice ?? 0}₺</p>
                     )}
                   </div>
-                  <span className="text-sm text-gray-500">Adet: {item.quantity}</span>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                      item.orderType === 'rent'
+                        ? 'bg-primary-50 text-primary-700'
+                        : 'bg-gray-100 text-gray-700'
+                    }`}>
+                      {item.orderType === 'rent' ? 'Kiralama' : 'Satın Alma'}
+                    </span>
+                    <span className="text-sm text-gray-500">Adet: {item.quantity}</span>
+                  </div>
                 </div>
               </div>
 

@@ -1,8 +1,13 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabaseClient';
 import { DEMO_USER_ID, getDummyStore, updateDummyStore } from '../lib/dummyStore';
 import type { Favorite } from '../types/book';
 import { getBookById } from './useBooks';
+
+const FAV_CHANGED = 'okugetir:fav-changed';
+function notifyFavChanged() {
+  window.dispatchEvent(new Event(FAV_CHANGED));
+}
 
 function mapFavorite(row: Record<string, unknown>): Favorite {
   return {
@@ -132,6 +137,7 @@ export function useFavorites(userId: string = DEMO_USER_ID) {
     async (bookId: string) => {
       await addToFavorite(bookId, userId);
       await load();
+      notifyFavChanged();
     },
     [userId, load],
   );
@@ -140,6 +146,7 @@ export function useFavorites(userId: string = DEMO_USER_ID) {
     async (bookId: string) => {
       await removeFromFavorite(bookId, userId);
       await load();
+      notifyFavChanged();
     },
     [userId, load],
   );
@@ -148,6 +155,15 @@ export function useFavorites(userId: string = DEMO_USER_ID) {
     (bookId: string) => favorites.some((f) => f.bookId === bookId),
     [favorites],
   );
+
+  const loadRef = useRef(load);
+  loadRef.current = load;
+
+  useEffect(() => {
+    const handler = () => loadRef.current();
+    window.addEventListener(FAV_CHANGED, handler);
+    return () => window.removeEventListener(FAV_CHANGED, handler);
+  }, []);
 
   return {
     favorites,

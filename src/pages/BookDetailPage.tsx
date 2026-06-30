@@ -32,7 +32,7 @@ export default function BookDetailPage() {
   const handleAddToCart = async (type: 'rent' | 'buy') => {
     if (!book) return;
     setAddingToCart(true);
-    await addToCart(book.id);
+    await addToCart(book.id, type);
     setCartMessage(type === 'rent' ? 'Kiralama sepete eklendi!' : 'Satın alma sepete eklendi!');
     setAddingToCart(false);
     setTimeout(() => setCartMessage(null), 2000);

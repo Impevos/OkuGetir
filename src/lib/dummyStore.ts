@@ -2,6 +2,7 @@ import dummyData from '../../dummy-data.json';
 import type { DummyDataStore } from '../types/book';
 
 const STORAGE_KEY = 'oku-getir-dummy-store';
+const STORE_VERSION = 2;
 
 /** Bellekte tutulan dummy veri — sepet/favori değişiklikleri oturum boyunca kalır */
 function getStore(): DummyDataStore {
@@ -12,7 +13,10 @@ function getStore(): DummyDataStore {
   const saved = localStorage.getItem(STORAGE_KEY);
   if (saved) {
     try {
-      return JSON.parse(saved) as DummyDataStore;
+      const parsed = JSON.parse(saved);
+      if (parsed._version === STORE_VERSION) {
+        return parsed as DummyDataStore;
+      }
     } catch {
       // bozuk kayıt — varsayılana dön
     }
@@ -23,7 +27,7 @@ function getStore(): DummyDataStore {
 
 function saveStore(store: DummyDataStore): void {
   if (typeof window !== 'undefined') {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...store, _version: STORE_VERSION }));
   }
 }
 
