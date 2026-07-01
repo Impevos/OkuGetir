@@ -132,3 +132,4 @@ export function Footer() {
     </footer>
   );
 }
+2026 Oku Getir 
